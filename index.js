@@ -1,46 +1,16 @@
 const express = require("express");
 const dotenv = require("dotenv");
-<<<<<<< HEAD
 const cors = require("cors");
-=======
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
->>>>>>> 49c5734cfeebe227a5052ab84b598f7af02a6e13
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 dotenv.config();
 const app = express();
-<<<<<<< HEAD
 app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
-
-const genAi = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAi.getGenerativeModel({ model: "models/gemini-2.0-flash" });
-
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`GEMINI API Server is running on http://localhost:${PORT}`);
-});
-
-app.post("/api/chat", async (req, res) => {
-  const userMessage = req.body.message;
-
-  if (!userMessage) {
-    return res.status(400).json({ error: "Message is required" });
-  }
-
-  try {
-    const result = await model.generateContent(userMessage);
-    const response = await result.response;
-    const text = response.text;
-    res.json({ reply: text });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ reply: "something went wrong" });
-=======
-app.use(express.json());
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
@@ -52,6 +22,26 @@ app.listen(PORT, () => {
   console.log(`Gemini API server is running at http://localhost:${PORT}`);
 });
 
+// Simple chat endpoint
+app.post("/api/chat", async (req, res) => {
+  const userMessage = req.body.message;
+
+  if (!userMessage) {
+    return res.status(400).json({ error: "Message is required" });
+  }
+
+  try {
+    const result = await model.generateContent(userMessage);
+    const response = await result.response;
+    const text = response.text();
+    res.json({ reply: text });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ reply: "something went wrong" });
+  }
+});
+
+// Text generation endpoint
 app.post("/generate-text", async (req, res) => {
   const { prompt } = req.body;
 
@@ -82,7 +72,7 @@ app.post("/generate-from-image", upload.single("image"), async (req, res) => {
 
   try {
     const result = await model.generateContent([prompt, image]);
-    res.json({ output: result.response.text() }); // ✅ FIXED HERE
+    res.json({ output: result.response.text() });
   } catch (error) {
     res.status(500).json({ error: error.message });
   } finally {
@@ -99,7 +89,7 @@ app.post(
     const filePath = req.file.path;
     const buffer = fs.readFileSync(filePath);
     const base64Data = buffer.toString("base64");
-    const mimeType = req.file.mimetype; // Default MIME type, can be adjusted as needed
+    const mimeType = req.file.mimetype;
 
     try {
       const documentPart = {
@@ -117,20 +107,20 @@ app.post(
     } catch (error) {
       res.status(500).json({ error: error.message });
     } finally {
-      fs.unlinkSync(req.file.path); // Clean up the uploaded file
+      fs.unlinkSync(req.file.path);
     }
   }
 );
 
 app.post("/generate-from-audio", upload.single("audio"), async (req, res) => {
   const audioBuffer = fs.readFileSync(req.file.path);
-  const base64Audio = AudioBuffer.toString("base64");
-  const mimeType = req.file.mimetype; // Default MIME type, can be adjusted as needed
+  const base64Audio = audioBuffer.toString("base64");
+  const mimeType = req.file.mimetype;
 
   try {
     const audioPart = {
       inlineData: {
-        inlineData: base64Data,
+        data: base64Audio,
         mimeType: mimeType,
       },
     };
@@ -143,7 +133,8 @@ app.post("/generate-from-audio", upload.single("audio"), async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   } finally {
-    if (fs.unlinkSync(req.file.path));
->>>>>>> 49c5734cfeebe227a5052ab84b598f7af02a6e13
+    if (fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
   }
 });
