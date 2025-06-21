@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
   "name": "gemini-chatbot-api",
-=======
-  "name": "gemini-flah-api",
->>>>>>> 49c5734cfeebe227a5052ab84b598f7af02a6e13
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -15,15 +11,8 @@
   "description": "",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
-<<<<<<< HEAD
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0"
-=======
-    "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "multer": "^2.0.1",
-    "web-audio-api": "^0.2.2"
->>>>>>> 49c5734cfeebe227a5052ab84b598f7af02a6e13
   }
 }
